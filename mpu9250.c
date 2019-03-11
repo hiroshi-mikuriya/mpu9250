@@ -67,7 +67,7 @@ int read_mag(short * mag)
     CHK(i2c_init(AK8963_ADDR));
     for (uint8_t b = 0;;) {
         uint8_t d = REG_MAG_ST1;
-        CHK((i2c_write_read(&d, sizeof(d), &b, sizeof(b)));
+        CHK(i2c_write_read(&d, sizeof(d), &b, sizeof(b)));
         if (b & 0x01)
             break;
         usleep(1000);
