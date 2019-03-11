@@ -60,7 +60,7 @@ int read_gyro(short * gyro)
 
 int read_mag(short * mag)
 {
-    const uint8_t AK8963 = 0x02;
+    const uint8_t AK8963 = 0x0C;
     uint8_t buf[7] = { 0 };
     int res = 0;
     for (;;) {
