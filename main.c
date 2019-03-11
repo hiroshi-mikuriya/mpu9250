@@ -17,7 +17,7 @@ int main()
             return 1;
         if (read_mag(mag) != 0)
             return 1;
-        printf("accel:%7d%7d%7d gyro:%7d%7d%7d mag:%7d%7d%7d\n", accel[0], accel[1], accel[2],
+        printf("accel:%7d%7d%7d  gyro:%7d%7d%7d  mag:%7d%7d%7d\n", accel[0], accel[1], accel[2],
                gyro[0], gyro[1], gyro[2], mag[0], mag[1], mag[2]);
         usleep(100 * 1000);
     }

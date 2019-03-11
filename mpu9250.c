@@ -1,7 +1,8 @@
 #include "mpu9250.h"
 #include "mpu9250reg.h"
 #include "i2c.h"
-#include <unistd.h>
+
+#include <unistd.h> // usleep
 
 static uint8_t s_dev_addr; // slave address of mpu9250 expected 0x68 o r0x69.
 #define AK8963_ADDR 0x0C
@@ -10,7 +11,7 @@ int init_mpu9250(uint8_t dev_addr)
 {
     s_dev_addr = dev_addr;
     int res = 0;
-#define CHK(err) do { res = err; if (res != 0) goto init_mpu9250_end; } while(0)
+#define CHK(err) do { res = err; if (res != 0) goto end; } while(0)
     CHK(i2c_init(s_dev_addr));
     uint8_t v0[] = { REG_INT_PIN_CFG, 0x02 };
     CHK(i2c_write(v0, sizeof(v0)));
@@ -21,7 +22,7 @@ int init_mpu9250(uint8_t dev_addr)
     uint8_t v1[] = { REG_MAG_CNTL, 0x16 }; // 磁気センサの出力周期(100Hz)
     CHK(i2c_write(v1, sizeof(v1)));
 #undef CHK
-init_mpu9250_end:
+end:
     i2c_deinit();
     return res;
 }
@@ -29,7 +30,7 @@ init_mpu9250_end:
 int read_accel(short * accel)
 {
     int res = 0;
-#define CHK(err) do { res = err; if (res != 0) goto read_accel_end; } while(0)
+#define CHK(err) do { res = err; if (res != 0) goto end; } while(0)
     CHK(i2c_init(s_dev_addr));
     uint8_t v = REG_ACCEL_XOUT_H;
     uint8_t buf[6] = { 0 };
@@ -38,7 +39,7 @@ int read_accel(short * accel)
         accel[i] = (short)((buf[i * 2] << 8) + (buf[i * 2 + 1] & 0xFF));
     }
 #undef CHK
-read_accel_end:
+end:
     i2c_deinit();
     return res;
 }
@@ -46,7 +47,7 @@ read_accel_end:
 int read_gyro(short * gyro)
 {
     int res = 0;
-#define CHK(err) do { res = err; if (res != 0) goto read_gyro_end; } while(0)
+#define CHK(err) do { res = err; if (res != 0) goto end; } while(0)
     CHK(i2c_init(s_dev_addr));
     uint8_t v = REG_GYRO_XOUT_H;
     uint8_t buf[6] = { 0 };
@@ -55,7 +56,7 @@ int read_gyro(short * gyro)
         gyro[i] = (short)((buf[i * 2] << 8) + (buf[i * 2 + 1] & 0xFF));
     }
 #undef CHK
-read_gyro_end:
+end:
     i2c_deinit();
     return res;
 }
@@ -63,7 +64,7 @@ read_gyro_end:
 int read_mag(short * mag)
 {
     int res = 0;
-#define CHK(err) do { res = err; if (res != 0) goto read_mag_end; } while(0)
+#define CHK(err) do { res = err; if (res != 0) goto end; } while(0)
     CHK(i2c_init(AK8963_ADDR));
     for (uint8_t b = 0;;) {
         uint8_t d = REG_MAG_ST1;
@@ -79,7 +80,7 @@ int read_mag(short * mag)
         mag[i] = (short)((buf[i * 2] & 0xFF) + (buf[i * 2 + 1] << 8)); // TODO: use Adj
     }
 #undef CHK
-read_mag_end:
+end:
     i2c_deinit();
     return res;
 }
