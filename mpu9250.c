@@ -74,7 +74,7 @@ int read_mag(short * mag)
     }
     uint8_t buf[7] = { 0 };
     uint8_t d = REG_MAG_HXL;
-    CHK((i2c_write_read(&d, sizeof(d), buf, sizeof(buf)));
+    CHK(i2c_write_read(&d, sizeof(d), buf, sizeof(buf)));
     for (int i = 0; i < 3; ++i) {
         mag[i] = (short)((buf[i * 2] & 0xFF) + (buf[i * 2 + 1] << 8)); // TODO: use Adj
     }
