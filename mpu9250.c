@@ -8,18 +8,18 @@ static uint8_t s_dev_addr; // slave address of mpu9250 expected 0x68 o r0x69.
 
 int init_mpu9250(uint8_t dev_addr)
 {
+    s_dev_addr = dev_addr;
     int res = 0;
 #define CHK(err) do { res = err; if (res != 0) goto init_mpu9250_end; } while(0)
-    s_dev_addr = dev_addr;
     CHK(i2c_init(s_dev_addr));
     uint8_t v0[] = { REG_INT_PIN_CFG, 0x02 };
     CHK(i2c_write(v0, sizeof(v0)));
     i2c_deinit();
 
     CHK(i2c_init(AK8963_ADDR));
+    // TODO: Adjを取得し保持する。
     uint8_t v1[] = { REG_MAG_CNTL, 0x16 }; // 磁気センサの出力周期(100Hz)
     CHK(i2c_write(v1, sizeof(v1)));
-    // TODO: Adjを取得し保持する。
 #undef CHK
 init_mpu9250_end:
     i2c_deinit();
