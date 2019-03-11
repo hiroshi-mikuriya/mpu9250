@@ -51,7 +51,16 @@ int i2c_write(uint8_t * buf, uint16_t len)
     return 0;
 }
 
-int i2c_read(uint8_t * wbuf, uint16_t wlen, uint8_t * rbuf, uint16_t rlen)
+int i2c_read(uint8_t * buf, uint16_t len)
+{
+    if (read(s_fd, buf, len) < 0) {
+        fprintf(stderr, "error read %02x\n", errno);
+        return errno;
+    }
+    return 0;
+}
+
+int i2c_write_read(uint8_t * wbuf, uint16_t wlen, uint8_t * rbuf, uint16_t rlen)
 {
     struct i2c_msg msgs[2] = {
         { .addr = s_dev_addr, .flags = 0, /*write*/ .len = wlen, .buf = wbuf },
