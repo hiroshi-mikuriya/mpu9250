@@ -47,7 +47,7 @@ int i2c_write(uint8_t * buf, uint16_t len)
     }
     if (res != len) {
         fprintf(stderr, "error write size %d != %d\n", res, len);
-        return 1;
+        return -1;
     }
     return 0;
 }
