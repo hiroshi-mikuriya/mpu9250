@@ -14,7 +14,7 @@ static int my_write(uint8_t dev_addr, uint8_t * buf, uint16_t len)
     return i2c_deinit();
 }
 
-static int read(uint8_t dev_addr, uint8_t reg, uint8_t * rbuf, uint16_t rlen)
+static int my_read(uint8_t dev_addr, uint8_t reg, uint8_t * rbuf, uint16_t rlen)
 {
     int res = i2c_init(dev_addr);
     if (res != 0)
@@ -37,7 +37,7 @@ int init_mpu9250(uint8_t dev_addr)
 int read_accel(short * accel)
 {
     uint8_t buf[6] = { 0 };
-    int res = read(s_dev_addr, REG_ACCEL_XOUT_H, buf, sizeof(buf));
+    int res = my_read(s_dev_addr, REG_ACCEL_XOUT_H, buf, sizeof(buf));
     if (res != 0)
         return res;
     for (int i = 0; i < 3; ++i) {
@@ -49,7 +49,7 @@ int read_accel(short * accel)
 int read_gyro(short * gyro)
 {
     uint8_t buf[6] = { 0 };
-    int res = read(s_dev_addr, REG_GYRO_XOUT_H, buf, sizeof(buf));
+    int res = my_read(s_dev_addr, REG_GYRO_XOUT_H, buf, sizeof(buf));
     if (res != 0)
         return res;
     for (int i = 0; i < 3; ++i) {
@@ -64,14 +64,14 @@ int read_mag(short * mag)
     uint8_t buf[7] = { 0 };
     int res = 0;
     for (;;) {
-        res = read(AK8963, REG_MAG_ST1, buf, 1);
+        res = my_read(AK8963, REG_MAG_ST1, buf, 1);
         if (res != 0)
             return res;
         if (buf[0] & 0x01)
             break;
         usleep(1000 * 1000);
     }
-    res = read(AK8963, REG_MAG_HXL, buf, 7);
+    res = my_read(AK8963, REG_MAG_HXL, buf, 7);
     if (res != 0)
         return res;
     for (int i = 0; i < 3; ++i) {
