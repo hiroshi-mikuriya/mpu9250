@@ -68,14 +68,14 @@ int read_mag(short * mag)
     uint8_t buf[7] = { 0 };
     int res = 0;
     for (;;) {
-        res = my_read(AK8963, REG_MAG_ST1, buf, 1);
+        res = my_read(AK8963_ADDR, REG_MAG_ST1, buf, 1);
         if (res != 0)
             return res;
         if (buf[0] & 0x01)
             break;
         usleep(1000 * 1000);
     }
-    res = my_read(AK8963, REG_MAG_HXL, buf, 7);
+    res = my_read(AK8963_ADDR, REG_MAG_HXL, buf, 7);
     if (res != 0)
         return res;
     for (int i = 0; i < 3; ++i) {
