@@ -73,7 +73,7 @@ int read_mag(short * mag)
             return res;
         if (buf[0] & 0x01)
             break;
-        usleep(1000 * 1000);
+        usleep(1000);
     }
     res = my_read(AK8963_ADDR, REG_MAG_HXL, buf, 7);
     if (res != 0)
