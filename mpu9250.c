@@ -3,7 +3,7 @@
 #include "i2c.h"
 #include <unistd.h>
 
-static int write(uint8_t dev_addr, uint8_t * buf, uint16_t len)
+static int my_write(uint8_t dev_addr, uint8_t * buf, uint16_t len)
 {
     int res = i2c_init(dev_addr);
     if (res != 0)
@@ -31,7 +31,7 @@ int init_mpu9250(uint8_t dev_addr)
 {
     s_dev_addr = dev_addr;
     uint8_t v[] = { REG_INT_PIN_CFG, 0x02 };
-    return write(s_dev_addr, &v, sizeof(v));
+    return my_write(s_dev_addr, &v, sizeof(v));
 }
 
 int read_accel(short * accel)
