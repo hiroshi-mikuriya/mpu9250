@@ -3,83 +3,96 @@
 #include "i2c.h"
 #include <unistd.h>
 
-static int my_write(uint8_t dev_addr, uint8_t * buf, uint16_t len)
-{
-    int res = i2c_init(dev_addr);
-    if (res != 0)
-        return res;
-    res = i2c_write(buf, len);
-    if (res != 0)
-        return res;
-    return i2c_deinit();
-}
-
-static int my_read(uint8_t dev_addr, uint8_t reg, uint8_t * rbuf, uint16_t rlen)
-{
-    int res = i2c_init(dev_addr);
-    if (res != 0)
-        return res;
-    res = i2c_read(&reg, sizeof(reg), rbuf, rlen);
-    if (res != 0)
-        return res;
-    return i2c_deinit();
-}
-
 static uint8_t s_dev_addr;
 #define AK8963_ADDR 0x0C
 
 int init_mpu9250(uint8_t dev_addr)
 {
+    int res = 0;
     s_dev_addr = dev_addr;
-    uint8_t v[] = { REG_INT_PIN_CFG, 0x02 };
-    int res = my_write(s_dev_addr, v, sizeof(v));
+    res = i2c_init(s_dev_addr);
     if (res != 0)
-        return res;
-    uint8_t v0[] = { REG_MAG_CNTL, 0x16 };
-    return my_write(AK8963_ADDR, v0, sizeof(v0));
+        goto init_mpu9250_end;
+    uint8_t v0[] = { REG_INT_PIN_CFG, 0x02 };
+    res = i2c_write(v0, sizeof(v0));
+    if (res != 0)
+        goto init_mpu9250_end;
+    i2c_deinit();
+
+    res = i2c_init(AK8963_ADDR);
+    if (res != 0)
+        goto init_mpu9250_end;
+    uint8_t v1[] = { REG_MAG_CNTL, 0x16 };
+    res = i2c_write(v1, sizeof(v1));
+    if (res != 0)
+        goto init_mpu9250_end;
+init_mpu9250_end:
+    i2c_deinit();
+    return res;
 }
 
 int read_accel(short * accel)
 {
-    uint8_t buf[6] = { 0 };
-    int res = my_read(s_dev_addr, REG_ACCEL_XOUT_H, buf, sizeof(buf));
+    int res = 0;
+    res = i2c_init(s_dev_addr);
     if (res != 0)
-        return res;
+        goto read_accel_end;
+    uint8_t v = REG_ACCEL_XOUT_H;
+    uint8_t buf[6] = { 0 };
+    res = i2c_read(&v, sizeof(v), buf, sizeof(buf));
+    if (res != 0)
+        goto read_accel_end;
     for (int i = 0; i < 3; ++i) {
         accel[i] = (short)((buf[i * 2] << 8) + (buf[i * 2 + 1] & 0xFF));
     }
-    return 0;
+read_accel_end:
+    i2c_deinit();
+    return res;
 }
 
 int read_gyro(short * gyro)
 {
-    uint8_t buf[6] = { 0 };
-    int res = my_read(s_dev_addr, REG_GYRO_XOUT_H, buf, sizeof(buf));
+    int res = 0;
+    res = i2c_init(s_dev_addr);
     if (res != 0)
-        return res;
+        goto read_gyro_end;
+    uint8_t v = REG_GYRO_XOUT_H;
+    uint8_t buf[6] = { 0 };
+    res = i2c_read(&v, sizeof(v), buf, sizeof(buf));
+    if (res != 0)
+        goto read_gyro_end;
     for (int i = 0; i < 3; ++i) {
         gyro[i] = (short)((buf[i * 2] << 8) + (buf[i * 2 + 1] & 0xFF));
     }
-    return 0;
+read_gyro_end:
+    i2c_deinit();
+    return res;
 }
 
 int read_mag(short * mag)
 {
-    uint8_t buf[7] = { 0 };
     int res = 0;
-    for (;;) {
-        res = my_read(AK8963_ADDR, REG_MAG_ST1, buf, 1);
+    res = i2c_init(AK8963_ADDR);
+    if (res != 0)
+        goto read_mag_end;
+    for (uint8_t b = 0;;) {
+        uint8_t d = REG_MAG_ST1;
+        res = i2c_read(&d, sizeof(d), &b, sizeof(b));
         if (res != 0)
-            return res;
-        if (buf[0] & 0x01)
+            goto read_mag_end;
+        if (b & 0x01)
             break;
         usleep(1000);
     }
-    res = my_read(AK8963_ADDR, REG_MAG_HXL, buf, 7);
+    uint8_t buf[7] = { 0 };
+    uint8_t d = REG_MAG_HXL;
+    res = i2c_read(&d, sizeof(d), buf, sizeof(buf));
     if (res != 0)
-        return res;
+        goto read_mag_end;
     for (int i = 0; i < 3; ++i) {
         mag[i] = (short)((buf[i * 2] & 0xFF) + (buf[i * 2 + 1] << 8));
     }
-    return 0;
+read_mag_end:
+    i2c_deinit();
+    return res;
 }
