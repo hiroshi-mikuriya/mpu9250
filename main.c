@@ -8,14 +8,18 @@ int main()
     if (res != 0)
         return 1;
     for (;;) {
-        short gyro[3] = { 0 };
         short accel[3] = { 0 };
+        short gyro[3] = { 0 };
+        short mag[3] = { 0 };
         if (read_accel(accel) != 0)
             return 1;
         if (read_gyro(gyro) != 0)
             return 1;
-        printf("%8d%8d%8d%8d%8d%8d\n", accel[0], accel[1], accel[2], gyro[0], gyro[1], gyro[2]);
-        sleep(1);
+        if (read_mag(mag) != 0)
+            return 1;
+        printf("accel: %8d%8d%8d gyro: %8d%8d%8d mag: %8d%8d%8d\n", accel[0], accel[1], accel[2],
+               gyro[0], gyro[1], gyro[2], mag[0], mag[1], mag[2]);
+        usleep(100 * 1000 * 1000);
     }
     return 0;
 }

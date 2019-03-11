@@ -1,6 +1,7 @@
 #include "mpu9250.h"
 #include "mpu9250reg.h"
 #include "i2c.h"
+#include <unistd.h>
 
 static int write(uint8_t dev_addr, uint8_t * buf, uint16_t len)
 {
@@ -29,7 +30,8 @@ static uint8_t s_dev_addr;
 int init_mpu9250(uint8_t dev_addr)
 {
     s_dev_addr = dev_addr;
-    return 0;
+    uint8_t v[] = { REG_INT_PIN_CFG, 0x02 };
+    return write(s_dev_addr, &v, sizeof(v));
 }
 
 int read_accel(short * accel)
@@ -58,5 +60,22 @@ int read_gyro(short * gyro)
 
 int read_mag(short * mag)
 {
+    const uint8_t AK8963 = 0x02;
+    uint8_t buf[7] = { 0 };
+    int res = 0;
+    for (;;) {
+        res = read(AK8963, REG_MAG_ST1, buf, 1);
+        if (res != 0)
+            return res;
+        if (buf[0] & 0x01)
+            break;
+        usleep(1000 * 1000);
+    }
+    res = read(AK8963, REG_MAG_HXL, buf, 7);
+    if (res != 0)
+        return res;
+    for (int i = 0; i < 3; ++i) {
+        mag[i] = (short)((buf[i * 2] & 0xFF) + (buf[i * 2 + 1] << 8));
+    }
     return 0;
 }
