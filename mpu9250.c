@@ -31,7 +31,7 @@ int init_mpu9250(uint8_t dev_addr)
 {
     s_dev_addr = dev_addr;
     uint8_t v[] = { REG_INT_PIN_CFG, 0x02 };
-    return my_write(s_dev_addr, &v, sizeof(v));
+    return my_write(s_dev_addr, v, sizeof(v));
 }
 
 int read_accel(short * accel)
