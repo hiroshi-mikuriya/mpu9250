@@ -1,8 +1,6 @@
 #include "i2c.h"
-#ifdef __linux__
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
-#endif
 #include <fcntl.h>
 #include <string.h>
 #include <sys/ioctl.h>
@@ -17,7 +15,6 @@ static uint8_t s_dev_addr;
 
 int i2c_init(uint8_t dev_addr)
 {
-#ifdef __linux__
     const char * dev = "/dev/i2c-1";
     s_fd = open(dev, O_RDWR);
     if (s_fd < 0) {
@@ -29,7 +26,6 @@ int i2c_init(uint8_t dev_addr)
         fprintf(stderr, "error ioctl(I2C_SLAVE) %02x\n", errno);
         return errno;
     }
-#endif
     return 0;
 }
 
@@ -44,7 +40,6 @@ int i2c_deinit(void)
 
 int i2c_write(uint8_t * buf, uint16_t len)
 {
-#ifdef __linux__
     int res = write(s_fd, buf, len);
     if (res < 0) {
         fprintf(stderr, "error write %02x\n", errno);
@@ -54,13 +49,11 @@ int i2c_write(uint8_t * buf, uint16_t len)
         fprintf(stderr, "error write size %d != %d\n", res, len);
         return 1;
     }
-#endif
     return 0;
 }
 
 int i2c_read(uint8_t * wbuf, uint16_t wlen, uint8_t * rbuf, uint16_t rlen)
 {
-#ifndef __APPLE__
     struct i2c_msg msgs[2] = {
         { .addr = s_dev_addr, .flags = 0, /*write*/ .len = wlen, .buf = wbuf },
         { .addr = s_dev_addr, .flags = I2C_M_RD, .len = rlen, .buf = rbuf }
@@ -70,6 +63,5 @@ int i2c_read(uint8_t * wbuf, uint16_t wlen, uint8_t * rbuf, uint16_t rlen)
         fprintf(stderr, "error ioctl(I2C_RDWR) %02x\n", errno);
         return errno;
     }
-#endif
     return 0;
 }
