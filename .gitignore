@@ -1,6 +1,5 @@
-* # ignore all
+*
 
-!*.*
 !*/
 !.gitignore
 !.c
