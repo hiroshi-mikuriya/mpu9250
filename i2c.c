@@ -62,6 +62,7 @@ int i2c_read(uint8_t * buf, uint16_t len)
 
 int i2c_write_read(uint8_t * wbuf, uint16_t wlen, uint8_t * rbuf, uint16_t rlen)
 {
+#if 0
     struct i2c_msg msgs[2] = {
         { .addr = s_dev_addr, .flags = 0, /*write*/ .len = wlen, .buf = wbuf },
         { .addr = s_dev_addr, .flags = I2C_M_RD, .len = rlen, .buf = rbuf }
@@ -71,5 +72,13 @@ int i2c_write_read(uint8_t * wbuf, uint16_t wlen, uint8_t * rbuf, uint16_t rlen)
         fprintf(stderr, "error ioctl(I2C_RDWR) %02x\n", errno);
         return errno;
     }
+#else
+    int res = i2c_write(wbuf, wlen);
+    if (res != 0)
+        return res;
+    int res = i2c_read(rbuf, rlen);
+    if (res != 0)
+        return res;
+#endif
     return 0;
 }
