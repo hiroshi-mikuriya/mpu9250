@@ -76,7 +76,7 @@ int i2c_write_read(uint8_t * wbuf, uint16_t wlen, uint8_t * rbuf, uint16_t rlen)
     int res = i2c_write(wbuf, wlen);
     if (res != 0)
         return res;
-    int res = i2c_read(rbuf, rlen);
+    res = i2c_read(rbuf, rlen);
     if (res != 0)
         return res;
 #endif
