@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <string.h>
 #include <errno.h>
 #include <stdio.h>
 
@@ -17,12 +18,12 @@ int i2c_init(uint8_t dev_addr)
     const char * dev = "/dev/i2c-1";
     s_fd = open(dev, O_RDWR);
     if (s_fd < 0) {
-        fprintf(stderr, "error open(%s) %02x\n", dev, errno);
+        fprintf(stderr, "error open(%s) %s\n", dev, strerror(errno));
         return errno;
     }
     s_dev_addr = dev_addr;
     if (ioctl(s_fd, I2C_SLAVE, s_dev_addr) < 0) {
-        fprintf(stderr, "error ioctl(I2C_SLAVE) %02x\n", errno);
+        fprintf(stderr, "error ioctl(I2C_SLAVE) %s\n", strerror(errno));
         return errno;
     }
     return 0;
@@ -31,7 +32,7 @@ int i2c_init(uint8_t dev_addr)
 int i2c_deinit(void)
 {
     if (close(s_fd) < 0) {
-        fprintf(stderr, "error close %02x\n", errno);
+        fprintf(stderr, "error close %s\n", strerror(errno));
         return errno;
     }
     return 0;
@@ -41,7 +42,7 @@ int i2c_write(uint8_t * buf, uint16_t len)
 {
     int res = write(s_fd, buf, len);
     if (res < 0) {
-        fprintf(stderr, "error write %02x\n", errno);
+        fprintf(stderr, "error write %s\n", strerror(errno));
         return errno;
     }
     if (res != len) {
@@ -54,7 +55,7 @@ int i2c_write(uint8_t * buf, uint16_t len)
 int i2c_read(uint8_t * buf, uint16_t len)
 {
     if (read(s_fd, buf, len) < 0) {
-        fprintf(stderr, "error read %02x\n", errno);
+        fprintf(stderr, "error read %s\n", strerror(errno));
         return errno;
     }
     return 0;
@@ -68,7 +69,7 @@ int i2c_write_read(uint8_t * wbuf, uint16_t wlen, uint8_t * rbuf, uint16_t rlen)
     };  
     struct i2c_rdwr_ioctl_data rdwr = { .msgs = msgs, .nmsgs = 2 };
     if (ioctl(s_fd, I2C_RDWR, &rdwr) < 0) {
-        fprintf(stderr, "error ioctl(I2C_RDWR) %02x\n", errno);
+        fprintf(stderr, "error ioctl(I2C_RDWR) %s\n", strerror(errno));
         return errno;
     }
     return 0;
