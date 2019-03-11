@@ -26,12 +26,17 @@ static int my_read(uint8_t dev_addr, uint8_t reg, uint8_t * rbuf, uint16_t rlen)
 }
 
 static uint8_t s_dev_addr;
+#define AK8963_ADDR 0x0C
 
 int init_mpu9250(uint8_t dev_addr)
 {
     s_dev_addr = dev_addr;
     uint8_t v[] = { REG_INT_PIN_CFG, 0x02 };
-    return my_write(s_dev_addr, v, sizeof(v));
+    int res = my_write(s_dev_addr, v, sizeof(v));
+    if (res != 0)
+        return res;
+    uint8_t v0[] = { REG_MAG_CNTL, 0x16 };
+    return my_write(AK8963_ADDR, v0, sizeof(v0));
 }
 
 int read_accel(short * accel)
@@ -60,7 +65,6 @@ int read_gyro(short * gyro)
 
 int read_mag(short * mag)
 {
-    const uint8_t AK8963 = 0x0C;
     uint8_t buf[7] = { 0 };
     int res = 0;
     for (;;) {
