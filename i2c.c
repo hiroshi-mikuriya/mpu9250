@@ -2,7 +2,6 @@
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
 #include <fcntl.h>
-#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
