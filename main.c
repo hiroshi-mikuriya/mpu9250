@@ -1,9 +1,9 @@
 #define I2C 1
 #define SPI 2
-#define MODE    SPI
+#define MODE    I2C
 
 #if MODE == I2C
-#include "mpu9250.h"
+#include "mpu9250i2c.h"
 #else // SPI
 #include "mpu9250spi.h"
 #endif // MODE
