@@ -13,19 +13,22 @@
 int main()
 {
 #if MODE == I2C
-    int res = init_mpu9250(0x68);
-    if (res != 0)
-        return 1;
+    int err = init_mpu9250(0x68);
+    if (err)
+        return err;
     for (;;) {
         short accel[3] = { 0 };
         short gyro[3] = { 0 };
         short mag[3] = { 0 };
-        if (read_accel(accel) != 0)
-            return 1;
-        if (read_gyro(gyro) != 0)
-            return 1;
-        if (read_mag(mag) != 0)
-            return 1;
+        err = read_accel(accel);
+        if (err)
+            return err;
+        err = read_gyro(gyro);
+        if (err)
+            return err;
+        err = read_mag(mag);
+        if (err)
+            return err;
         printf("accel:%7d%7d%7d  gyro:%7d%7d%7d  mag:%7d%7d%7d\n", accel[0], accel[1], accel[2],
                gyro[0], gyro[1], gyro[2], mag[0], mag[1], mag[2]);
         usleep(100 * 1000);
@@ -33,16 +36,18 @@ int main()
     return 0;
 #else // SPI
     int cs = 0;
-    int res = mpu9250spi_init(cs);
-    if (res != 0)
-        return 1;
+    int err = mpu9250spi_init(cs);
+    if (err)
+        return err;
     for (;;) {
         short accel[3] = { 0 };
         short gyro[3] = { 0 };
-        if (mpu9250spi_accel(accel) != 0)
-            return 1;
-        if (mpu9250spi_gyro(gyro) != 0)
-            return 1;
+        err = mpu9250spi_accel(accel);
+        if (err)
+            return err;
+        err = mpu9250spi_gyro(gyro);
+        if (err)
+            return err;
         printf("accel:%7d%7d%7d  gyro:%7d%7d%7d\n", accel[0], accel[1], accel[2],
                gyro[0], gyro[1], gyro[2]);
         usleep(100 * 1000);
