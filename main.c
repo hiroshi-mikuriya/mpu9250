@@ -1,6 +1,6 @@
 #define I2C 1
 #define SPI 2
-#define MODE    I2C
+#define MODE    SPI
 
 #if MODE == I2C
 #include "mpu9250.h"
@@ -33,7 +33,7 @@ int main()
     return 0;
 #else // SPI
     int cs = 0;
-    int res = init_mpu9250spi(cs);
+    int res = mpu9250spi_init(cs);
     if (res != 0)
         return 1;
     for (;;) {
