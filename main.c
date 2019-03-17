@@ -1,9 +1,18 @@
+#define I2C 1
+#define SPI 2
+#define MODE    I2C
+
+#if MODE == I2C
 #include "mpu9250.h"
+#else // SPI
+#include "mpu9250spi.h"
+#endif // MODE
 #include <stdio.h>
 #include <unistd.h>
 
 int main()
 {
+#if MODE == I2C
     int res = init_mpu9250(0x68);
     if (res != 0)
         return 1;
@@ -22,4 +31,21 @@ int main()
         usleep(100 * 1000);
     }
     return 0;
+#else // SPI
+    int cs = 0;
+    int res = init_mpu9250spi(cs);
+    if (res != 0)
+        return 1;
+    for (;;) {
+        short accel[3] = { 0 };
+        short gyro[3] = { 0 };
+        if (mpu9250spi_accel(accel) != 0)
+            return 1;
+        if (mpu9250spi_gyro(gyro) != 0)
+            return 1;
+        printf("accel:%7d%7d%7d  gyro:%7d%7d%7d\n", accel[0], accel[1], accel[2],
+               gyro[0], gyro[1], gyro[2]);
+        usleep(100 * 1000);
+    }
+#endif // MODE
 }
